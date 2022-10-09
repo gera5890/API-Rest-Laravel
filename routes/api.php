@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\Random;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,4 +72,21 @@ Route::post('/users', function(Request $request){
     return response()->json(['user',200]);
 });
 
+Route::prefix('v2')->group(function(){
 
+    Route::get('/users',function(){
+        $users = User::select('name','email')->get();
+        return response()->json(["users" => $users],200);
+    });
+
+    Route::post('/users', function(Request $request){
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json(["user" => $user], 200);
+    });
+
+});
